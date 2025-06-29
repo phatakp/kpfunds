@@ -28,6 +28,7 @@ export default tseslint.config(
             ...tseslint.configs.stylisticTypeChecked,
         ],
         rules: {
+            "@typescript-eslint/prefer-nullish-coelescing": "warn",
             "@typescript-eslint/no-empty-object-type": "off",
             "@typescript-eslint/no-unsafe-assignment": "off",
             "@typescript-eslint/no-unsafe-argument": "off",

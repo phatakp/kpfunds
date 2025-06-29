@@ -22,6 +22,10 @@
             "@/*": ["./*"],
             "@/pages*": ["./app/(pages)/*"],
             "@/components*": ["./app/_components/*"],
+            "@/authcomponents*": ["./app/(pages)/auth/_components/*"],
+            "@/actions*": ["./server/actions/*"],
+            "@/services*": ["./server/services/*"],
+            "@/repositories*": ["./server/repositories/*"],
             "@/styles*": ["./app/_styles/*"]
         }
     },

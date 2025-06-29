@@ -5,9 +5,11 @@ import {
     integer,
     pgEnum,
     pgTable,
+    real,
     text,
     timestamp,
     uuid,
+    varchar,
 } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", {
@@ -78,10 +80,38 @@ export const profiles = pgTable("profiles", {
     updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
 });
 
+export const events = pgTable("events", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    name: text("name").notNull().unique(),
+    createdAt: timestamp("created_at").$defaultFn(() => new Date()),
+    userId: uuid("user_id").references(() => users.id, {
+        onDelete: "set null",
+    }),
+});
+
+export const transactions = pgTable("transactions", {
+    id: uuid("id").primaryKey().defaultRandom(),
+    eventId: uuid("event_id")
+        .notNull()
+        .references(() => events.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => users.id, { onDelete: "cascade" }),
+    amount: real("amount").notNull(),
+    name: varchar("name", { length: 256 }).notNull(),
+    building: buildingEnum("building"),
+    flat: integer("flat"),
+    isPayment: boolean("is_payment").default(false),
+    createdAt: timestamp("created_at").$defaultFn(() => new Date()),
+    updatedAt: timestamp("updated_at").$defaultFn(() => new Date()),
+});
+
 // RELATIONS
 //User Relations
 export const userRelations = relations(users, ({ many, one }) => ({
     accounts: many(accounts, { relationName: "userAccounts" }),
+    transactions: many(transactions, { relationName: "userTransactions" }),
+    events: many(events, { relationName: "userEvents" }),
     profile: one(profiles, {
         fields: [users.id],
         references: [profiles.userId],
@@ -107,13 +137,41 @@ export const profileRelations = relations(profiles, ({ one }) => ({
     }),
 }));
 
+//Event Relations
+export const eventRelations = relations(events, ({ many, one }) => ({
+    transactions: many(transactions, { relationName: "eventTransactions" }),
+    user: one(users, {
+        fields: [events.userId],
+        references: [users.id],
+        relationName: "userEvents",
+    }),
+}));
+
+//Transaction Relations
+export const transactionRelations = relations(transactions, ({ one }) => ({
+    user: one(users, {
+        fields: [transactions.userId],
+        references: [users.id],
+        relationName: "userTransactions",
+    }),
+    event: one(events, {
+        fields: [transactions.eventId],
+        references: [events.id],
+        relationName: "eventTransactions",
+    }),
+}));
+
 export const schema = {
     users,
     accounts,
     verifications,
     sessions,
     profiles,
+    events,
+    transactions,
     userRelations,
     accountRelations,
     profileRelations,
+    eventRelations,
+    transactionRelations,
 };
