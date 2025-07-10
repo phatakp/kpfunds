@@ -1,0 +1,46 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.0.6/schema.json",
+  "extends": [
+    "ultracite"
+  ],
+  "assist": {
+    "actions": {
+      "source": {
+        "organizeImports": "off"
+      }
+    }
+  },
+  "linter": {
+    "domains": {
+      "next": "recommended"
+    },
+    "rules": {
+      "a11y": {
+        "noAutofocus": "off",
+        "useSemanticElements": "info",
+        "useAriaPropsForRole": "info",
+        "useFocusableInteractive": "info",
+        "noSvgWithoutTitle": "off"
+      },
+      "style": {
+        "useBlockStatements": "off"
+      },
+      "nursery": {
+        "noShadow": "off",
+        "noNestedComponentDefinitions": "off"
+      },
+      "correctness": {
+        "noUnusedVariables": {
+          "level": "warn",
+          "options": {
+            "ignoreRestSiblings": true
+          }
+        }
+      },
+      "suspicious": {
+        "noConsole": "off",
+        "noExplicitAny": "warn"
+      }
+    }
+  }
+}
