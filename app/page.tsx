@@ -2,9 +2,17 @@ import { CommitteeStatCards } from '@/components/committee/stat-cards';
 import { Button } from '@/components/ui/button';
 import { Loader } from 'lucide-react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
-export default function HomePage() {
+type Props = {
+  searchParams: Promise<{ code?: string }>;
+};
+
+export default async function HomePage({ searchParams }: Props) {
+  const { code } = await searchParams;
+  if (code) redirect(`/api/auth/callback?code=${code}}`);
+
   return (
     <div className="flex flex-col gap-4">
       <Suspense fallback={<Loader className="m-auto animate-spin" />}>
