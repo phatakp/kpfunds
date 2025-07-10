@@ -21,7 +21,7 @@ export function ProfileForm({ user }: { user: User | null }) {
   const { modalId, closeModal } = useModal();
   const router = useRouter();
 
-  const name = user?.user_metadata?.name ?? '';
+  const name = user?.user_metadata?.full_name ?? '';
   const image = user?.user_metadata?.avatar_url;
 
   const { form, handleSubmitWithAction, resetFormAndAction } =

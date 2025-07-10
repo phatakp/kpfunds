@@ -11,10 +11,13 @@ import { getURL } from '@/lib/utils';
 
 export const loginWithGoogle = publicProcedure.action(
   async ({ ctx: { supabase } }) => {
+    const redirectUrl = `${getURL()}/api/auth/callback`;
+    console.log({ redirectUrl });
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${getURL()}/api/auth/callback`,
+        redirectTo: redirectUrl,
       },
     });
 
