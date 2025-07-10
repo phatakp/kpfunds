@@ -11,7 +11,7 @@ import { getURL } from '@/lib/utils';
 
 export const loginWithGoogle = publicProcedure.action(
   async ({ ctx: { supabase } }) => {
-    const redirectUrl = `${getURL()}/api/auth/callback`;
+    const redirectUrl = `${getURL()}api/auth/callback`;
     console.log({ redirectUrl });
 
     const { data, error } = await supabase.auth.signInWithOAuth({
@@ -32,7 +32,7 @@ export const loginWithEmailOTP = publicProcedure
     const { data, error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        emailRedirectTo: `${getURL()}/api/auth/confirm`,
+        emailRedirectTo: `${getURL()}api/auth/confirm`,
       },
     });
     if (error) throw new ActionError(error.message);

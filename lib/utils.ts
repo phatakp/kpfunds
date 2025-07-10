@@ -21,10 +21,6 @@ export const getURL = () => {
       ? 'https://kpfunds.vercel.app'
       : 'http://localhost:3000';
 
-  // Make sure to include `https://` when not localhost.
-  if (process.env.NODE_ENV === 'production') {
-    url = url.startsWith('http:') ? url : `https://${url}`;
-  }
   // Make sure to include a trailing `/`.
   url = url.endsWith('/') ? url : `${url}/`;
   return url;
