@@ -10,7 +10,8 @@ import { TableCell, TableRow } from '@/components/ui/table';
 import { amountFormatter, cn } from '@/lib/utils';
 
 import type { BookingFormSchema } from '@/app/schemas';
-import type { TItemWithBookings, TUserProfile } from '@/app/types';
+import type { TItemWithBookings } from '@/app/types';
+import { useAuthContext } from '@/components/auth/auth-provider';
 import type { CheckedState } from '@radix-ui/react-checkbox';
 import { ChevronDown, Dot, IndianRupeeIcon, Pen, X } from 'lucide-react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
@@ -23,11 +24,11 @@ import { AnnadaanItemForm } from './item-form';
 type Props = {
   item: TItemWithBookings;
   isActive: boolean;
-  profile: TUserProfile | undefined | null;
   year: number;
 };
 
-export function AnnadaanItem({ item, isActive, profile, year }: Props) {
+export function AnnadaanItem({ item, isActive, year }: Props) {
+  const { profile } = useAuthContext();
   const { control, watch } =
     useFormContext<z.infer<typeof BookingFormSchema>>();
   const { append, remove } = useFieldArray({

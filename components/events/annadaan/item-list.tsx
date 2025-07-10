@@ -21,14 +21,19 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { amountFormatter, customResolver } from '@/lib/utils';
-import { IndianRupeeIcon, Plus } from 'lucide-react';
+import { IndianRupee, IndianRupeeIcon, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 import { BookingFormSchema } from '@/app/schemas';
 import type { TItemWithBookings } from '@/app/types';
 import { useAuthContext } from '@/components/auth/auth-provider';
-import { createBookings } from '@/server/actions/annadaan.actions';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  createBookings,
+  getAllAnnadaanItems,
+} from '@/server/actions/annadaan.actions';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { AnnadaanBookingForm } from './booking-form';
 import { AnnadaanItem } from './item';
@@ -36,15 +41,18 @@ import { AnnadaanItemForm } from './item-form';
 
 type Props = {
   year: number;
-  items: TItemWithBookings[] | undefined;
   isEventActive: boolean;
 };
 
-export function AnnadaanList({ year, items, isEventActive }: Props) {
-  console.log({ isEventActive });
+export function AnnadaanList({ year, isEventActive }: Props) {
+  const { data: items, isLoading } = useQuery({
+    queryKey: ['annadaan', year],
+    queryFn: () => getAllAnnadaanItems({ year }).then((res) => res?.data),
+  });
 
+  const queryClient = useQueryClient();
   const router = useRouter();
-  const { profile } = useAuthContext();
+  const { profile, isLoading: isAuthLoading } = useAuthContext();
   const isUserAdmin = !!profile?.is_admin;
 
   const { form, handleSubmitWithAction, resetFormAndAction } =
@@ -71,10 +79,10 @@ export function AnnadaanList({ year, items, isEventActive }: Props) {
         onSuccess: ({ data }) => {
           if (data) toast.error(data);
           else {
+            queryClient.invalidateQueries({ queryKey: ['annadaan', year] });
             toast.success('Items booked successfully');
             resetFormAndAction();
           }
-          router.refresh();
         },
         onError: ({ error }) => {
           toast.error(
@@ -88,10 +96,16 @@ export function AnnadaanList({ year, items, isEventActive }: Props) {
       },
     });
 
+  if (isLoading) return <ItemsLoader />;
   if (!items) return;
 
   const totalRequired = items.reduce((acc, b) => acc + b.amount, 0);
   const bookings = items.sort((a, b) => sortCriteria(a, b));
+  const totalBookings = items.reduce(
+    (acc, i) =>
+      acc + i.bookings.reduce((bcc, b) => bcc + b.booked_qty * i.price, 0),
+    0
+  );
 
   return (
     <Form {...form}>
@@ -101,9 +115,17 @@ export function AnnadaanList({ year, items, isEventActive }: Props) {
       >
         <Card className="max-w-sm sm:max-w-md md:max-w-full">
           <CardHeader>
-            <CardTitle>Items List</CardTitle>
-            <CardDescription>Donate generously for Annadaan</CardDescription>
-            {isUserAdmin && (
+            <CardDescription>Total Bookings so far</CardDescription>
+            <CardTitle>
+              <div className="flex items-center">
+                <IndianRupee className="size-4 text-muted-foreground" />
+                <span className="font-semibold text-2xl">
+                  {amountFormatter(totalBookings)}
+                </span>
+              </div>
+            </CardTitle>
+            {isAuthLoading && <Skeleton className="h-10 w-32" />}
+            {!isAuthLoading && isUserAdmin && (
               <CardAction>
                 <Modal content={<AnnadaanItemForm />} title="Add Annadaan Item">
                   <Button className="rounded-md" size={'sm'}>
@@ -115,11 +137,18 @@ export function AnnadaanList({ year, items, isEventActive }: Props) {
             )}
           </CardHeader>
           <CardContent className="space-y-4">
-            {!form.formState.isSubmitSuccessful && (
-              <AnnadaanBookingForm profile={profile} />
-            )}
+            {!form.formState.isSubmitSuccessful && <AnnadaanBookingForm />}
             <Table>
               <TableHeader>
+                <TableRow>
+                  <TableCell colSpan={4}>
+                    Total Required: ({bookings.length} items)
+                  </TableCell>
+                  <TableCell className="flex items-center justify-end">
+                    <IndianRupeeIcon className="size-3.5 text-muted-foreground" />
+                    {amountFormatter(totalRequired)}
+                  </TableCell>
+                </TableRow>
                 <TableRow>
                   {(isEventActive || isUserAdmin) && <TableHead>Sel</TableHead>}
                   <TableHead className="w-fit md:w-[100px]">Item</TableHead>
@@ -134,7 +163,6 @@ export function AnnadaanList({ year, items, isEventActive }: Props) {
                     <AnnadaanItem
                       isActive={isEventActive}
                       item={item}
-                      profile={profile}
                       year={year}
                     />
                   </Collapsible>
@@ -170,4 +198,47 @@ function sortCriteria(a: TItemWithBookings, b: TItemWithBookings) {
       : 0;
   if (t1 === t2) return b.price * b.quantity < a.price * a.quantity ? -1 : 1;
   return t1 > t2 ? -1 : 1;
+}
+
+function ItemsLoader() {
+  return (
+    <div className="*:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card *:data-[slot=card]:shadow-xs dark:*:data-[slot=card]:bg-card">
+      <Card className="max-w-sm sm:max-w-md md:max-w-full">
+        <CardHeader>
+          <CardTitle>Items List</CardTitle>
+          <CardDescription>Donate generously for Annadaan</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-fit md:w-[100px]">Item</TableHead>
+                <TableHead className="text-right">Available Qty</TableHead>
+                <TableHead className="text-right">Required</TableHead>
+                <TableHead className="text-right">Total</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...new Array(10).keys()].map((item) => (
+                <TableRow key={item}>
+                  <TableCell>
+                    <Skeleton className="h-10 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-10 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-10 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-10 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
 }

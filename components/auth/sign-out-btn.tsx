@@ -8,6 +8,7 @@ import { useAction } from 'next-safe-action/hooks';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { Dispatch, SetStateAction } from 'react';
+import { Skeleton } from '../ui/skeleton';
 import { useAuthContext } from './auth-provider';
 
 type Props = {
@@ -17,7 +18,7 @@ type Props = {
 export function SignInOutButton({ setOpen }: Props) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { user } = useAuthContext();
+  const { user, isLoading } = useAuthContext();
 
   const { execute, isPending } = useAction(logout, {
     onSettled: () => {
@@ -29,6 +30,12 @@ export function SignInOutButton({ setOpen }: Props) {
 
   const handleLogout = () => execute();
 
+  if (isLoading)
+    return (
+      <Button disabled size={'icon'} variant={'ghost'}>
+        <Skeleton className="size-4" />
+      </Button>
+    );
   if (!user)
     return (
       <Button asChild className="group transition-all" size={'sm'}>

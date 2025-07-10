@@ -1,29 +1,28 @@
 'use client';
 import { EventCreateSchema } from '@/app/schemas';
-import type { TCommittee } from '@/app/types';
 import { SelectInput } from '@/components/inputs/select-input';
 import { TextInput } from '@/components/inputs/text-input';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { EVENT_TYPES } from '@/lib/constants';
 import { cn, customResolver } from '@/lib/utils';
+import { getAllCommittees } from '@/server/actions/committee.actions';
 import { createEvent } from '@/server/actions/event.actions';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
+import { useQuery } from '@tanstack/react-query';
+import { Loader } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 import FormErrorArea from '../layouts/form-error-area';
 import { useModal } from '../layouts/modal';
 
-type Props = {
-  committees: TCommittee[] | null | undefined;
-};
-export function CreateEventForm({ committees }: Props) {
+export function CreateEventForm() {
   const router = useRouter();
+  const { data: committees, isLoading } = useQuery({
+    queryKey: ['committees'],
+    queryFn: () => getAllCommittees().then((res) => res?.data),
+  });
   const { modalId, closeModal } = useModal();
-  const commOptions = committees?.map((c) => ({
-    label: c.name,
-    value: c.name,
-  }));
 
   const { form, handleSubmitWithAction, resetFormAndAction } =
     useHookFormAction(createEvent, customResolver(EventCreateSchema), {
@@ -51,6 +50,13 @@ export function CreateEventForm({ committees }: Props) {
         },
       },
     });
+
+  const commOptions = committees?.map((c) => ({
+    label: c.name,
+    value: c.name,
+  }));
+
+  if (isLoading) return <Loader className="mx-auto animate-spin" />;
 
   return (
     <Form {...form}>

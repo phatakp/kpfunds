@@ -12,12 +12,10 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { isLoggedInProfile } from '@/server/actions/auth.actions';
-import { getAllCommittees } from '@/server/actions/committee.actions';
 import { Loader, Plus } from 'lucide-react';
 import { Suspense } from 'react';
 
 export default async function AdminPage() {
-  const { data: committees } = await getAllCommittees();
   const { data } = await isLoggedInProfile();
 
   if (!data?.profile?.is_admin)
@@ -34,10 +32,7 @@ export default async function AdminPage() {
           <CardHeader>
             <CardTitle className="font-extrabold text-2xl">Events</CardTitle>
             <CardAction>
-              <Modal
-                content={<CreateEventForm committees={committees} />}
-                title="Add Event"
-              >
+              <Modal content={<CreateEventForm />} title="Add Event">
                 <Button className="rounded-sm" size={'icon'}>
                   <Plus />
                 </Button>

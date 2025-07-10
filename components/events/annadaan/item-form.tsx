@@ -3,12 +3,13 @@
 import { AnnadaanItemSchema } from '@/app/schemas';
 import type { TItemWithBookings } from '@/app/types';
 import { TextInput } from '@/components/inputs/text-input';
+import { useModal } from '@/components/layouts/modal';
 import { Button } from '@/components/ui/button';
 import { Form } from '@/components/ui/form';
 import { customResolver } from '@/lib/utils';
 import { upsertAnnadaanItem } from '@/server/actions/annadaan.actions';
 import { useHookFormAction } from '@next-safe-action/adapter-react-hook-form/hooks';
-import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
@@ -18,7 +19,8 @@ type Props = {
 };
 
 export function AnnadaanItemForm({ item }: Props) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
+  const { modalId, closeModal } = useModal();
 
   const { form, handleSubmitWithAction, resetFormAndAction } =
     useHookFormAction(upsertAnnadaanItem, customResolver(AnnadaanItemSchema), {
@@ -33,9 +35,10 @@ export function AnnadaanItemForm({ item }: Props) {
       },
       actionProps: {
         onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['annadaan'] });
           toast.success(`Item ${item ? 'updated' : 'created'} successfully`);
+          closeModal(modalId);
           resetFormAndAction();
-          router.refresh();
         },
         onError: ({ error }) => {
           toast.error(

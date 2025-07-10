@@ -1,7 +1,8 @@
 'use client';
 
 import type { BookingFormSchema } from '@/app/schemas';
-import type { TBuilding, TUserProfile } from '@/app/types';
+import type { TBuilding } from '@/app/types';
+import { useAuthContext } from '@/components/auth/auth-provider';
 import { SelectInput } from '@/components/inputs/select-input';
 import { TextInput } from '@/components/inputs/text-input';
 import { Button } from '@/components/ui/button';
@@ -27,22 +28,19 @@ import { useOutsideClick } from '@/lib/hooks/use-outside-click';
 import { amountFormatter, cn } from '@/lib/utils';
 import { getAllCommitteeMembers } from '@/server/actions/committee.actions';
 import { useQuery } from '@tanstack/react-query';
-import { IndianRupeeIcon, Loader, PenIcon } from 'lucide-react';
+import { IndianRupeeIcon, PenIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import type { z } from 'zod/v4';
 
-type Props = {
-  profile: TUserProfile | null | undefined;
-};
-
-export function AnnadaanBookingForm({ profile }: Props) {
+export function AnnadaanBookingForm() {
   const [editing, setEditing] = useState(-1);
+  const { profile } = useAuthContext();
   const { watch, register, setValue, formState } =
     useFormContext<z.infer<typeof BookingFormSchema>>();
   const [books, paidTo] = watch(['bookings', 'paidTo']);
 
-  const { data: members, isLoading } = useQuery({
+  const { data: members } = useQuery({
     queryKey: ['members'],
     queryFn: () =>
       getAllCommitteeMembers({ commmitteeName: 'Piccadilly Cultural' }).then(
@@ -60,8 +58,6 @@ export function AnnadaanBookingForm({ profile }: Props) {
       setValue('flat', profile.flat as number);
     }
   }, [profile, setValue]);
-
-  if (isLoading) return <Loader className="m-auto animate-spin" />;
 
   const memberOptions = (
     members

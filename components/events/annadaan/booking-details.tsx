@@ -14,20 +14,20 @@ import {
 } from '@/components/ui/table';
 import { amountFormatter } from '@/lib/utils';
 import { deleteBooking } from '@/server/actions/annadaan.actions';
+import { useQueryClient } from '@tanstack/react-query';
 import { IndianRupeeIcon, Trash } from 'lucide-react';
 import { useAction } from 'next-safe-action/hooks';
-import { useRouter } from 'next/navigation';
 import toast from 'react-hot-toast';
 
 type Props = { bookings: TAnnadaanBooking[]; price: number; year: number };
 
 export function BookingDetails({ bookings, price, year }: Props) {
-  const router = useRouter();
+  const queryClient = useQueryClient();
   const { profile, isLoading } = useAuthContext();
   const { execute } = useAction(deleteBooking, {
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['annadaan', year] });
       toast.success('Booking deleted');
-      router.refresh();
     },
     onError: ({ error }) => {
       toast.error(
