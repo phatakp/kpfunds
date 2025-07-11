@@ -15,7 +15,6 @@ import {
   Table,
   TableBody,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -115,7 +114,7 @@ export function AnnadaanList({ year, isEventActive }: Props) {
       >
         <Card className="max-w-sm sm:max-w-md md:max-w-full">
           <CardHeader>
-            <CardDescription>Total Bookings so far</CardDescription>
+            <CardDescription>Total Bookings Made</CardDescription>
             <CardTitle>
               <div className="flex items-center">
                 <IndianRupee className="size-4 text-muted-foreground" />
@@ -140,17 +139,22 @@ export function AnnadaanList({ year, isEventActive }: Props) {
             {!form.formState.isSubmitSuccessful && <AnnadaanBookingForm />}
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableCell colSpan={4}>
+                <TableRow className="bg-muted">
+                  <TableCell
+                    className="text-lg text-muted-foreground"
+                    colSpan={4}
+                  >
                     Total Required: ({bookings.length} items)
                   </TableCell>
-                  <TableCell className="flex items-center justify-end">
-                    <IndianRupeeIcon className="size-3.5 text-muted-foreground" />
-                    {amountFormatter(totalRequired)}
+                  <TableCell>
+                    <div className="flex items-center justify-end font-semibold text-2xl">
+                      <IndianRupeeIcon className="size-3.5 text-muted-foreground" />
+                      {amountFormatter(totalRequired)}
+                    </div>
                   </TableCell>
                 </TableRow>
                 <TableRow>
-                  {(isEventActive || isUserAdmin) && <TableHead>Sel</TableHead>}
+                  <TableHead>Sel</TableHead>
                   <TableHead className="w-fit md:w-[100px]">Item</TableHead>
                   <TableHead className="text-right">Available Qty</TableHead>
                   <TableHead className="text-right">Required</TableHead>
@@ -168,17 +172,6 @@ export function AnnadaanList({ year, isEventActive }: Props) {
                   </Collapsible>
                 ))}
               </TableBody>
-              <TableFooter>
-                <TableRow>
-                  <TableCell colSpan={4}>
-                    Total ({bookings.length} items)
-                  </TableCell>
-                  <TableCell className="flex items-center justify-end">
-                    <IndianRupeeIcon className="size-3.5 text-muted-foreground" />
-                    {amountFormatter(totalRequired)}
-                  </TableCell>
-                </TableRow>
-              </TableFooter>
             </Table>
           </CardContent>
         </Card>

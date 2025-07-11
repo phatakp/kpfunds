@@ -61,10 +61,10 @@ export function AnnadaanBookingForm() {
 
   const memberOptions = (
     members
-      ?.filter((m) => !!m?.profile?.name)
+      ?.filter((m) => !!m?.user?.name)
       .map((m) => ({
-        label: `${m.profile.name} (${m.profile.building}${m.profile.flat})`,
-        value: `${m.profile.name} (${m.profile.building}${m.profile.flat})`,
+        label: `${m.user.name} (${m.user.building}${m.user.flat})`,
+        value: `${m.user.name} (${m.user.building}${m.user.flat})`,
       })) ?? []
   ).concat({ label: 'Other', value: 'Other' });
 

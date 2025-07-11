@@ -35,7 +35,7 @@ export const getAllCommitteeMembers = publicProcedure
   .action(async ({ parsedInput: { commmitteeName }, ctx: { supabase } }) => {
     const { data } = await supabase
       .from('commitee_members')
-      .select('*,profile:profiles(*)')
+      .select('*,user:profiles(*)')
       .eq('committee_name', commmitteeName)
       .eq('is_active', true)
       .overrideTypes<TMemberWithProfile[]>();

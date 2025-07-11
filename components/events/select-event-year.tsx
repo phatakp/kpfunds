@@ -7,6 +7,7 @@ import { customResolver } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod/v4';
+import { Badge } from '../ui/badge';
 
 type Props = {
   events: TEvent[] | null | undefined;
@@ -28,11 +29,7 @@ export function SelectEventYear({ events, type, year }: Props) {
   });
 
   if (!events?.length)
-    return (
-      <div className="flex w-full items-center capitalize">
-        No {type} Events created yet!
-      </div>
-    );
+    return <Badge className="capitalize">No {type} Events created yet!</Badge>;
 
   const yearOptions = events?.map((e) => ({
     label: String(e.year),

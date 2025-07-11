@@ -17,7 +17,7 @@ export function JoinCommitteeBtn({ committeeName, userId }: Props) {
   const { execute, isPending } = useAction(addMember, {
     onSuccess: () => {
       toast.success('Membership Request Sent');
-      router.refresh();
+      router.push('/');
     },
     onError: ({ error }) =>
       toast.error(

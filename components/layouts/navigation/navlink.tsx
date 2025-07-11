@@ -12,12 +12,11 @@ export function NavLink({ title, href }: Props) {
   const { profile } = useAuthContext();
 
   if (href === '/admin' && !profile?.is_admin) return;
+  const isActive =
+    (path === '/' && title === 'Home') || path.includes(title.toLowerCase());
 
   return (
-    <Button
-      asChild
-      variant={path.includes(title.toLowerCase()) ? 'link' : 'ghost'}
-    >
+    <Button asChild variant={isActive ? 'link' : 'ghost'}>
       <Link href={href}>{title}</Link>
     </Button>
   );

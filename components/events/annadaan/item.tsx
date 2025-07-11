@@ -64,27 +64,17 @@ export function AnnadaanItem({ item, isActive, year }: Props) {
             !isAvailable && 'cursor-pointer py-1 text-muted-foreground'
           )}
         >
-          {isActive && profile?.is_admin && (
-            <TableCell>
-              <div className="flex items-center">
-                <ActionIcon
-                  handleClick={handleClick}
-                  isAvailable={isAvailable}
-                />
-                <EditButton item={item} />
-              </div>
-            </TableCell>
-          )}
-          {!isActive && profile?.is_admin && (
-            <TableCell>
-              <EditButton item={item} />
-            </TableCell>
-          )}
-          {isActive && !profile?.is_admin && (
-            <TableCell>
-              <ActionIcon handleClick={handleClick} isAvailable={isAvailable} />
-            </TableCell>
-          )}
+          <TableCell>
+            <div className="flex items-center">
+              <ActionIcon
+                handleClick={handleClick}
+                isActive={isActive}
+                isAvailable={isAvailable}
+              />
+              {profile?.is_admin && <EditButton item={item} />}
+            </div>
+          </TableCell>
+
           <TableCell className="font-medium">{item.item_name}</TableCell>
           <TableCell className="text-right">{availableQty}</TableCell>
           <TableCell className="text-right">
@@ -125,12 +115,19 @@ export function AnnadaanItem({ item, isActive, year }: Props) {
 const ActionIcon = ({
   isAvailable,
   handleClick,
+  isActive,
 }: {
+  isActive: boolean;
   isAvailable: boolean;
   handleClick: (checked: CheckedState) => void;
 }) => {
   if (isAvailable)
-    return <Checkbox onCheckedChange={(checked) => handleClick(checked)} />;
+    return (
+      <Checkbox
+        disabled={!isActive}
+        onCheckedChange={(checked) => handleClick(checked)}
+      />
+    );
   return <X className="size-5 translate-x-[3px] text-destructive" />;
 };
 

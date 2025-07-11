@@ -51,6 +51,7 @@ export async function Collections({ building, type }: Props) {
             </Modal>
           </CardAction>
         </CardHeader>
+
         <CardContent className="p-0">
           <DataTable columns={columns} data={collections ?? []} />
         </CardContent>

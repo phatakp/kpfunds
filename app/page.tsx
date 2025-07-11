@@ -1,15 +1,21 @@
 import { CommitteeStatCards } from '@/components/committee/stat-cards';
+import Background from '@/components/layouts/background';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Suspense } from 'react';
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col gap-4">
-      <Suspense fallback={<CommitteeLoader />}>
-        <CommitteeStatCards />
-      </Suspense>
-    </div>
+    <Background className="items-start justify-start">
+      <div className="flex flex-col gap-4">
+        <h1 className="font-bold text-4xl">Committees</h1>
+        <Badge>Only Members have all viewing rights</Badge>
+        <Suspense fallback={<CommitteeLoader />}>
+          <CommitteeStatCards />
+        </Suspense>
+      </div>
+    </Background>
   );
 }
 
